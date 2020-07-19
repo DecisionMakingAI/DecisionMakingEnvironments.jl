@@ -1,5 +1,9 @@
 module DecisionMakingEnvironments
 
-# Write your package code here.
+
+abstract type AbstractEnvironment end
+export AbstractEnvironment
+
+include("bandits/bandit.jl")
 
 end
