@@ -1,0 +1,13 @@
+name = "DecisionMakingEnvironments"
+uuid = "c2d78f9d-1393-4ac0-9d65-4613f9d81ffe"
+authors = ["Scott Jordan"]
+version = "0.1.0"
+
+[compat]
+julia = "0.0.1"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
