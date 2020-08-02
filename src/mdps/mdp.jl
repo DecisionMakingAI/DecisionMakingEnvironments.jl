@@ -11,7 +11,7 @@ struct MDP{TS,TA,TP,TD} <: AbstractMDP where {TS, TA, TP, TD}
 end
 
 struct POMDP{TS,TA,TX,TP,TO,TD} <: AbstractMDP where {TS, TA, TX, TP, TO, TD}
-    S::TS
+    S::TS 
     A::TA
     X::TX
     p::TP
@@ -21,8 +21,8 @@ end
 
 struct RLTask{TM, TR, TY} <: AbstractRLTask where {TM, TR, TY}
     m::TM
-    r::TR
-    γ::TY
+    r::TR  # reward function : S x A x S -> R, reward at time t = r(S_t,A_t,S_{t+1})
+    γ::TY  # discount function : S x A x S -> [0,1] discount factor at time t = γ(S_t,A_t,S_{t+1}) and when S_{t+1} is start state and S_t is terminal state disount is 0.0
 end
 
 include("chains.jl")
