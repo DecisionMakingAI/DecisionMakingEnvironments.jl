@@ -96,11 +96,11 @@ function create_finitetime_cartpole(params::CartPoleParams; tMax=20.0, dt=0.02, 
 	return m
 end
 
-function random_cartpole_params()
-	m = rand(rng, Uniform(0.025, .25))  # mass of pole
-	l = rand(rng, Uniform(0.1, 1.0))    # length of pole
-	mc = rand(rng, Uniform(0.1, 5.))    # mass of cart
-	g = rand(rng, Uniform(8., 10.))     # gravity
+function random_cartpole_params(::Type{T}=Float64) where {T}
+	m = rand(Uniform(T(0.025), T(.25)))  # mass of pole
+	l = rand(Uniform(T(0.1), T(1.0)))    # length of pole
+	mc = rand(Uniform(T(0.1), T(5.)))    # mass of cart
+	g = rand(Uniform(T(8.), T(10.)))     # gravity
 	params = CartPoleParams(T, m, l, mc, g)
 	return params
 end

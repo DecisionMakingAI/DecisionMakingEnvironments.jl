@@ -14,6 +14,6 @@ struct ContextualBandit{TX,TA,TD,TR} <: AbstractBandit where {TX, TA, TD, TR}
 end
 
 
-include("simplebandits.jl")
-
 export Bandit, ContextualBandit
+
+include("simplebandits.jl")

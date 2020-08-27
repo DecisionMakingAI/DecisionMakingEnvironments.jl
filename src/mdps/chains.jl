@@ -2,7 +2,7 @@ using StaticArrays
 using Distributions
 using SparseArrays
 
-export create_simple_chain, create_minimum_time_chain_task
+
 
 function create_simple_chain(num_states::Int; stochastic=false, failchance=0.1)
     S = 1:num_states
