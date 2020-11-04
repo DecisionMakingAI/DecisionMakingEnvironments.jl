@@ -1,5 +1,3 @@
-using StaticArrays
-
 struct CartPoleParams{T} <:Any where {T<:Real}
     m::T # mass of pole
     l::T # length of pole
@@ -14,7 +12,7 @@ struct CartPoleParams{T} <:Any where {T<:Real}
 end
 
 function cartpole_sim(state, constants::CartPoleParams, u, dt)
-	x, xDot, theta, thetaDot, t = view(state, 1:5)
+	x, xDot, theta, thetaDot = view(state, 1:4)
 	omegaDot = 0.
 	vDot = 0.
 	m = constants.m     # mass of pole
@@ -30,11 +28,10 @@ function cartpole_sim(state, constants::CartPoleParams, u, dt)
     thetaDot += dt * omegaDot
     x += dt * xDot
     xDot += dt * vDot
-	t += dt
 
     theta = mod(theta + π, 2 * π) - π
 
-	return SVector{5}(x, xDot, theta, thetaDot, t)
+	return x, xDot, theta, thetaDot
 end
 
 function cartpole_compute_torque(p::CartPoleParams, action::Int)
@@ -55,13 +52,20 @@ function cartpole_compute_torque(p::CartPoleParams, action)
 end
 
 
-function cartpole_step(state, action, params, dt, tMax)
+function cartpole_step(state, action, params, dt, maxT)
+	t,x = state
 	u = cartpole_compute_torque(params, action)
-	next_state = cartpole_sim(state, params, u, dt)
-	if cartpole_terminal(next_state)
-		next_state = zeros(SVector{5})
+	x .= cartpole_sim(x, params, u, dt)
+
+	t += dt
+	γ = 1.0
+	if cartpole_terminal(x) || (t > maxT - 1e-8)
+		fill!(x, 0.0)
+		t = 0.0
+		γ = 0.0
 	end
-	return next_state
+	r = 1.0
+	return t,x,r, γ
 end
 
 function create_finitetime_cartpole(;randomize=false, tMax=20.0, dt=0.02, Atype=:Discrete, droptime=true)
@@ -74,25 +78,49 @@ function create_finitetime_cartpole(;randomize=false, tMax=20.0, dt=0.02, Atype=
 end
 
 function create_finitetime_cartpole(params::CartPoleParams; tMax=20.0, dt=0.02, Atype=:Discrete, droptime=true)
-	S = @SMatrix [	-2.4 2.4 ;       	# x range
-					-10. 10. ;       	# xDot range
-					-π/12.0 π/12.0 ; # theta range
-					-π π ;           	# thetaDot range
-					0. tMax]			# time range
+	S = ([0. tMax],				# time range
+		[	-2.4 2.4 ;       	# x range
+			-10. 10. ;       	# xDot range
+			-π/12.0 π/12.0 ; 	# theta range
+			-π π ])           	# thetaDot range
+						
 	if Atype==:Discrete
 		A = 1:2
 	else
-		A = SMatrix{1,2}([-1.0,1.0])
+		A = [-1.0 1.0]
 	end
-	p = (s,a)->cartpole_step(s,a, params, dt, tMax)
-	d0 = ()->zeros(SVector{5})
 	if droptime
-		X = S[1:4, :]
-		obs(s) = s[1:4]
-		m = POMDP(S,A,X,p,obs,d0)
+		X = S[2]
+		function get_outcome1(s,a,params,dt,tMax)
+			t, x, r, γ = cartpole_step(s,a, params, dt, tMax)
+			s = (t,x)
+			return s,x,r,γ
+		end
+		p = (s,a)->get_outcome1(s,a,params,dt,tMax)
 	else
-		m = MDP(S,A,p,d0)
+		X = S
+		function get_outcome2(s,a,params,dt,tMax)
+			t, x, r, γ = cartpole_step(s,a, params, dt, tMax)
+			s = (t,x)
+			return s,s,r,γ
+		end
+		p = (s,a)->get_outcome2(s,a,params,dt,tMax)
 	end
+	function sample_initial()
+		x = zeros(4)
+		return (0.0, x), x
+	end
+	d0 = sample_initial
+	meta = Dict{Symbol,Any}()
+    meta[:minreward] = 1.0
+    meta[:maxreward] = 1.0
+    meta[:minreturn] = 9.0
+    meta[:maxreturn] = ceil(tMax / dt)
+    meta[:stochastic] = false
+    meta[:minhorizon] = 9.0
+    meta[:maxhorizon] = ceil(tMax / dt)
+    meta[:discounted] = false
+	m = SequentialProblem(S,X,A,p,d0,meta)
 	return m
 end
 
@@ -108,14 +136,7 @@ end
 function cartpole_terminal(state)
 	polecond = abs(state[3]) > (π / 15.0)
 	cartcond = abs(state[1]) ≥ 2.4
-	timecond = state[5] > (20. - 1e-8)
-	done = polecond | cartcond | timecond
+	done = polecond | cartcond 
 	return done
 end
 
-function create_cartpole_balancetask(m, tMax)
-	r = (s,a,s′)-> 1.0
-	γ = (s,a,s′)-> (s[5] > 0.0 && s′[5] == 0.0) ? 0.0 : 1.0
-	task = RLTask(m, r, γ)
-    return task
-end

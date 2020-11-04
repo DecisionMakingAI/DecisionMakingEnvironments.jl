@@ -1,6 +1,3 @@
-using StaticArrays
-
-export create_simple_discrete_bandit, create_simple_discrete_contextualbandit
 
 function create_simple_discrete_bandit(num_actions::Int; noise=1.0)
     A = 1:num_actions
@@ -8,12 +5,18 @@ function create_simple_discrete_bandit(num_actions::Int; noise=1.0)
         return a + randn() * noise
     end
     r = a -> simple_reward(a, noise)
-    b = Bandit(A, r)
+    meta = Dict{Symbol, Any}()
+    meta[:minreward] = -Inf
+    meta[:maxreward] = Inf
+    meta[:minobjective] = 1
+    meta[:maxobjective] = num_actions
+    b = BanditProblem(A, r, meta)
+    
     return b
 end
 
 function create_simple_discrete_contextualbandit(num_actions::Int; noise_x=1.0, noise_r=1.0)
-    X = SMatrix{1,2}([-2noise_x, 2noise_x])
+    X = [-2noise_x 2noise_x]
     A = 1:num_actions
 
     function sample_context(noise)
@@ -26,6 +29,11 @@ function create_simple_discrete_contextualbandit(num_actions::Int; noise_x=1.0, 
 
     d = ()->sample_context(noise_x)
     r = (x,a) -> simple_reward(x,a, noise_r)
-    b = ContextualBandit(X,A,d,r)
+    meta = Dict{Symbol, Any}()
+    meta[:minreward] = -Inf
+    meta[:maxreward] = Inf
+    meta[:minobjective] = -(√2 / π)
+    meta[:maxobjective] = num_actions * (√2 / π)
+    b = ContextualBanditProblem(X,A,d,r,meta)
     return b
 end
