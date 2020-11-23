@@ -3,6 +3,7 @@ module DecisionMakingEnvironments
 import Base:length, push!
 import StatsBase: sample, sample!
 using Distributions
+using RecipesBase
 
 abstract type AbstractDecisionMakingProblem end
 # # Examples
@@ -49,6 +50,7 @@ solves the decision making problem using the supplied algorithm. Returns a polic
 """
 function solve end
 
+
 export AbstractDecisionMakingProblem
 export sample, sample!, sample_trajectory!, sample_objective, meta_information, solve
 
@@ -58,9 +60,9 @@ export AbstractMDP, MDP, POMDP, SequentialProblem
 export BanditExperience, ContextualBanditExperience, Trajectory
 export length, push!
 
-export create_simple_discrete_bandit, create_simple_discrete_contextualbandit
-export create_simple_chain, create_simple_chain_finitetime
-export create_finitetime_cartpole
+# export create_simple_discrete_bandit, create_simple_discrete_contextualbandit
+# export create_simple_chain, create_simple_chain_finitetime
+# export create_finitetime_cartpole
 
 include("bandits/bandit.jl")
 include("mdps/mdp.jl")

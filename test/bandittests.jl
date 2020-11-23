@@ -1,4 +1,5 @@
 using DecisionMakingEnvironments
+import DecisionMakingEnvironments: create_simple_discrete_bandit, create_simple_discrete_contextualbandit
 using Test
 using Distributions
 

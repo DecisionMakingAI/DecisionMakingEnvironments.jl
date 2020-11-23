@@ -2,7 +2,7 @@
 abstract type AbstractMDP <: AbstractDecisionMakingProblem end
 
 
-struct MDP{TS,TA,TP,TR,TG,TD,TM} <: AbstractMDP where {TS, TA, TP, TR, TG, TD, TM}
+struct MDP{TS,TA,TP,TR,TG,TD,TM,TF} <: AbstractMDP where {TS, TA, TP, TR, TG, TD, TM, TF}
     S::TS
     A::TA
     p::TP
@@ -10,9 +10,10 @@ struct MDP{TS,TA,TP,TR,TG,TD,TM} <: AbstractMDP where {TS, TA, TP, TR, TG, TD, T
     γ::TG
     d0::TD
     meta::TM
+    render::TF
 end
 
-struct POMDP{TS,TA,TX,TP,TO,TR,TG,TD,TM} <: AbstractMDP where {TS, TA, TX, TP, TO, TR, TG, TD, TM}
+struct POMDP{TS,TA,TX,TP,TO,TR,TG,TD,TM,TF} <: AbstractMDP where {TS, TA, TX, TP, TO, TR, TG, TD, TM, TF}
     S::TS
     A::TA
     X::TX
@@ -22,15 +23,17 @@ struct POMDP{TS,TA,TX,TP,TO,TR,TG,TD,TM} <: AbstractMDP where {TS, TA, TX, TP, T
     γ::TG
     d0::TD
     meta::TM
+    render::TF
 end
 
-struct SequentialProblem{TS,TX,TA,TP,TD,TM} <: AbstractMDP where {TS, TX, TA, TP, TR, TG, TD, TM}
+struct SequentialProblem{TS,TX,TA,TP,TD,TM,TF} <: AbstractMDP where {TS, TX, TA, TP, TR, TG, TD, TM, TF}
     S::TS
     X::TX
     A::TA
     p::TP
     d0::TD
     meta::TM
+    render::TF
 end
 
 
@@ -39,8 +42,10 @@ export create_simple_chain, create_minimum_time_chain_task
 export create_finitetime_cartpole, create_cartpole_balancetask
 
 function sample(prob::SequentialProblem, s, a)
-    s′, x, r, γ = prob.p(s,a)
-    return s′, x, r, γ
+    # s′, x, r, γ = prob.p(s,a)
+    # return s′, x, r, γ
+    ret = prob.p(s,a)
+    return ret
 end
 
 function sample(prob::MDP, s, a)
@@ -176,6 +181,9 @@ end
 function meta_information(prob::AbstractMDP)
     return prob.meta
 end
+
+
+
 
 include("chains.jl")
 include("cartpole.jl")

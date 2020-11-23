@@ -1,4 +1,5 @@
 using DecisionMakingEnvironments
+import DecisionMakingEnvironments: create_simple_chain, create_simple_chain_finitetime, create_finitetime_cartpole
 using Test
 using Distributions
 
