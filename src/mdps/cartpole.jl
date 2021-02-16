@@ -120,7 +120,7 @@ function create_finitetime_cartpole(params::CartPoleParams; tMax=20.0, dt=0.02, 
     meta[:minhorizon] = 9.0
     meta[:maxhorizon] = ceil(tMax / dt)
     meta[:discounted] = false
-	m = SequentialProblem(S,X,A,p,d0,meta)
+	m = SequentialProblem(S,X,A,p,d0,meta, ()->nothing)
 	return m
 end
 

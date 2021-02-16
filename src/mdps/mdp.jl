@@ -182,7 +182,9 @@ function meta_information(prob::AbstractMDP)
     return prob.meta
 end
 
-
+function render(prob::AbstractMDP, state, cleardata=false)
+    return prob.render(state, cleardata)
+end
 
 
 include("chains.jl")

@@ -51,7 +51,7 @@ function create_simple_chain(num_states::Int; stochastic=false, failchance=0.1)
     meta[:minhorizon] = num_states
     meta[:maxhorizon] = Inf
     meta[:discounted] = false
-    m = MDP(S,A,p,r,γ,d0,meta)
+    m = MDP(S,A,p,r,γ,d0,meta, ()->nothing)
     return m
 end
 
@@ -89,9 +89,9 @@ function create_simple_chain_finitetime(num_states::Int; stochastic=false, failc
     if droptime
         X = S[2]
         obs = s->s[2]
-        m = POMDP(S,A,X,p,obs,r,γ,d0,meta)
+        m = POMDP(S,A,X,p,obs,r,γ,d0,meta,()->nothing)
     else
-        m = MDP(S,A,p,r,γ,d0,meta)
+        m = MDP(S,A,p,r,γ,d0,meta,()->nothing)
     end
 
     return m
