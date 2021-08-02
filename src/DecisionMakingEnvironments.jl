@@ -6,11 +6,6 @@ using Distributions
 using RecipesBase
 
 abstract type AbstractDecisionMakingProblem end
-# # Examples
-# ```julia-repl
-
-# ```
-
 
 """
     sample
@@ -58,7 +53,7 @@ export sample, sample!, sample_trajectory!, sample_objective, meta_information, 
 export AbstractBanditProblem, BanditProblem, ContextualBanditProblem
 export AbstractMDP, MDP, POMDP, SequentialProblem
 export BanditExperience, ContextualBanditExperience, Trajectory
-export length, push!
+export length, push!, finish!, finished
 
 # export create_simple_discrete_bandit, create_simple_discrete_contextualbandit
 # export create_simple_chain, create_simple_chain_finitetime

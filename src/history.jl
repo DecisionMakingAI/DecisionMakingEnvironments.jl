@@ -12,14 +12,15 @@ struct ContextualBanditExperience{T,TX,TA} <: Any where {T,TX,TA}
     reward::T
 end
 
-struct Trajectory{T,TS,TA} <: Any where {T,TS,TA}
+mutable struct Trajectory{T,TS,TA} <: Any where {T,TS,TA}
     states::Array{TS,1}
     actions::Array{TA,1}
     blogps::Array{T,1}
     rewards::Array{T,1}
+    done::Bool
 
     function Trajectory(::Type{T}, ::Type{TS}, ::Type{TA}) where {T,TS,TA}
-        new{T,TS,TA}(Array{TS,1}(), Array{TA,1}(), Array{T,1}(), Array{T,1}())
+        new{T,TS,TA}(Array{TS,1}(), Array{TA,1}(), Array{T,1}(), Array{T,1}(), false)
     end
 
     function Trajectory(prob::SequentialProblem)
@@ -70,4 +71,13 @@ function push!(τ::Trajectory{T,TS,TA}, state::TS, action::TA, blogp::T, reward:
     push!(τ.actions, deepcopy(action))
     push!(τ.blogps, blogp)
     push!(τ.rewards, reward)
+end
+
+
+function finish!(τ::Trajectory)
+    τ.done = true
+end
+
+function finished(τ::Trajectory)
+    return τ.done
 end
