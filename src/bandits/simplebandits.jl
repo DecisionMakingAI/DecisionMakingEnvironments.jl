@@ -2,14 +2,14 @@
 function create_simple_discrete_bandit(num_actions::Int; noise=1.0)
     A = 1:num_actions
     function simple_reward(a, noise)
-        return a + randn() * noise
+        return a + clamp(randn(), -3, 3) * noise
     end
     r = a -> simple_reward(a, noise)
     meta = Dict{Symbol, Any}()
     meta[:minreward] = -Inf
     meta[:maxreward] = Inf
-    meta[:minobjective] = 1
-    meta[:maxobjective] = num_actions
+    meta[:minobjective] = 1 - 3 * noise
+    meta[:maxobjective] = num_actions + 3 * noise
     b = BanditProblem(A, r, meta)
     
     return b
