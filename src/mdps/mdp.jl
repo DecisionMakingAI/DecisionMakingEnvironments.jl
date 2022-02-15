@@ -98,7 +98,7 @@ function sample_trajectory!(prob::POMDP, τ, π)
     end
 end
 
-function sample_trajectory!(prob::SequentialProblem, τ, π)
+function sample_trajectory!(τ, prob::SequentialProblem, π)
     s, x = prob.d0()
     done = false
     while !done
@@ -109,6 +109,7 @@ function sample_trajectory!(prob::SequentialProblem, τ, π)
         push!(τ, x, a, logp, r)
         if γ == 0
             done = true
+            finish!(τ)
         end
         s = s′
         x = x′
