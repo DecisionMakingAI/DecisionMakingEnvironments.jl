@@ -76,6 +76,21 @@ function push!(τ::Trajectory{T,TS,TA}, state::TS, action::TA, blogp::T, reward:
     push!(τ.rewards, reward)
 end
 
+function push!(τ::Trajectory{T, TS, TA}; state=nothing::Union{TS,Nothing}, action=nothing::Union{TA,Nothing}, blogp=nothing::Union{T,Nothing}, reward=nothing::Union{T,Nothing}) where {T, TS, TA}
+    if typeof(state) != Nothing
+        push!(τ.states, copy(state))
+    end
+    if typeof(action) != Nothing
+        push!(τ.actions, copy(action))
+    end
+    if typeof(blogp) != Nothing
+        push!(τ.blogps, blogp)
+    end
+    if typeof(reward) != Nothing
+        push!(τ.rewards, reward)
+    end
+end
+
 
 function finish!(τ::Trajectory)
     τ.done = true
