@@ -42,8 +42,6 @@ export create_simple_chain, create_minimum_time_chain_task
 export create_finitetime_cartpole, create_cartpole_balancetask
 
 function sample(prob::SequentialProblem, s, a)
-    # s′, x, r, γ = prob.p(s,a)
-    # return s′, x, r, γ
     ret = prob.p(s,a)
     return ret
 end
@@ -64,7 +62,7 @@ function sample(prob::POMDP, s, a)
 end
 
 
-function sample_trajectory!(prob::MDP, τ, π)
+function sample_trajectory!(τ, prob::MDP, π)
     s = prob.d0()
     done = false
     while !done
@@ -80,7 +78,7 @@ function sample_trajectory!(prob::MDP, τ, π)
     end
 end
 
-function sample_trajectory!(prob::POMDP, τ, π)
+function sample_trajectory!(τ, prob::POMDP, π)
     s = prob.d0()
     x = prob.obs(s)
     done = false

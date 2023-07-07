@@ -168,7 +168,7 @@ end
 
     π = s -> Categorical([1.0,0.0])
     τ = Trajectory(prob)
-    sample_trajectory!(prob, τ, π)
+    sample_trajectory!(τ, prob, π)
     @test sum(τ.rewards) == meta[:minreturn]
     @test length(τ.rewards) == 9
     @test length(τ.states) == 9
