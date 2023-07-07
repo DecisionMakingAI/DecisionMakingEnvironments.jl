@@ -55,10 +55,6 @@ export AbstractMDP, MDP, POMDP, SequentialProblem
 export BanditExperience, ContextualBanditExperience, Trajectory
 export length, push!, finish!, finished
 
-# export create_simple_discrete_bandit, create_simple_discrete_contextualbandit
-# export create_simple_chain, create_simple_chain_finitetime
-# export create_finitetime_cartpole
-
 include("bandits/bandit.jl")
 include("mdps/mdp.jl")
 include("history.jl")
