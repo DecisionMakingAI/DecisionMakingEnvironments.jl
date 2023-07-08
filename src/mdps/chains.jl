@@ -29,19 +29,28 @@ function simplechain_perturb_action(a::Int, failchance)
     end
 end
 
+function simplechain_step(s, a, S, r, γ)
+    s′ = simplechain_transition(s,a,S)
+    reward = r(s,a,s′)
+    γt = γ(s,a,s′)
+    return s′, s′, reward, γt
+end
+
+
 
 function create_simple_chain(num_states::Int; stochastic=false, failchance=0.1)
     S = 1:num_states
     A = 1:2
 
-    if !stochastic
-        p = (s,a)->simplechain_transition(s,a,S)  # mask out S in above function    
-    else
-        p = (s,a)->simplechain_transition(s,simplechain_perturb_action(a,failchance), S)
-    end
-    d0 = ()->minimum(S)
     r = (s,a,s′)-> -1.0
     γ = (s,a,s′)-> (s==num_states && s′==1) ? 0.0 : 1.0
+    if !stochastic
+        p = (s,a)->simplechain_step(s, a, S, r, γ)  # mask out S in above function    
+    else
+        p = (s,a)->simplechain_step(s, simplechain_perturb_action(a,failchance), S, r, γ)
+    end
+    d0 = ()->(minimum(S), minimum(S))
+    
     meta = Dict{Symbol,Any}()
     meta[:minreward] = -1.0
     meta[:maxreward] = -1.0
@@ -51,7 +60,8 @@ function create_simple_chain(num_states::Int; stochastic=false, failchance=0.1)
     meta[:minhorizon] = num_states
     meta[:maxhorizon] = Inf
     meta[:discounted] = false
-    m = MDP(S,A,p,r,γ,d0,meta, ()->nothing)
+
+    m = SequentialProblem(S,S,A,p,d0,meta, ()->nothing)
     return m
 end
 
@@ -67,15 +77,48 @@ function finite_horizon_transition(m0, s, a, maxT)
     return (t, s′)
 end
 
+function simplechain_step_finite_horizon(s, a, S, r, γ)
+    t,x = s
+    x′ = simplechain_transition(x,a,S)
+    t += 1
+    reward = r(x,a,x′)
+    γt = γ(x,a,x′)
+    s′ = (t,x′)
+    return s′, reward, γt
+end
+
 function create_simple_chain_finitetime(num_states::Int; stochastic=false, failchance=0.1, droptime=true)
     maxT = num_states * 20
     S = (1:maxT, 1:num_states)
+    if droptime
+        X = S[2]
+    else
+        X = S
+    end
     A = 1:2
-    m0 = create_simple_chain(num_states; stochastic=stochastic, failchance=failchance)
-    p = (s,a)->finite_horizon_transition(m0, s, a, maxT)
-    γ = (s,a,s′)-> (s[2]==num_states && s′[2]==1) || (s[1] ≥ s′[1]) ? 0.0 : 1.0
-    r = (s,a,s′)->m0.r(s[2],a,s′[2])
-    d0 = ()->(1,m0.d0())
+    r = (s,a,s′)-> -1.0
+    γ = (s,a,s′)-> (s==num_states && s′==1) ? 0.0 : 1.0
+    if !stochastic
+        pfun = (s,a)->simplechain_step_finite_horizon(s, a, S, r, γ)  # mask out S in above function    
+    else
+        pfun = (s,a)->simplechain_step_finite_horizon(s, simplechain_perturb_action(a,failchance), S, r, γ)
+    end
+    pdrop(s,a) = begin
+        s, r, γ = pfun(s,a)
+        return s, s[2], r, γ        
+    end
+    pfull(s,a) = begin
+        s, r, γ = pfun(s,a)
+        return s, s, r, γ        
+    end
+    if droptime
+        d0 = ()->((1,minimum(S[2])), minimum(S[2]))
+        p = pdrop
+    else
+        d0 = ()->((1,minimum(S[2])), (1,minimum(S[2])))
+        p = pfull
+    end
+    
     meta = Dict{Symbol,Any}()
     meta[:minreward] = -1.0
     meta[:maxreward] = -1.0
@@ -86,13 +129,7 @@ function create_simple_chain_finitetime(num_states::Int; stochastic=false, failc
     meta[:maxhorizon] = maxT
     meta[:discounted] = false
     
-    if droptime
-        X = S[2]
-        obs = s->s[2]
-        m = POMDP(S,A,X,p,obs,r,γ,d0,meta,()->nothing)
-    else
-        m = MDP(S,A,p,r,γ,d0,meta,()->nothing)
-    end
+    m = SequentialProblem(S,X,A,p,d0,meta, ()->nothing)
 
     return m
 end

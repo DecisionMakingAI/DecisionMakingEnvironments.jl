@@ -30,23 +30,6 @@ mutable struct Trajectory{T,TS,TA} <: Any where {T,TS,TA}
         T = T == Int ? Float64 : T
         Trajectory(T,TS,TA)
     end
-
-    function Trajectory(prob::MDP)
-        TS = get_type(prob.S)
-        TA = get_type(prob.A)
-        T = eltype(TS)
-        T = T == Int ? Float64 : T
-        Trajectory(T,TS,TA)
-    end
-
-    function Trajectory(prob::POMDP)
-        TS = get_type(prob.X)
-        TA = get_type(prob.A)
-        T = eltype(TS)
-        T = T == Int ? Float64 : T
-        Trajectory(T,TS,TA)
-    end
-
 end
 
 function get_type(t::Tuple)

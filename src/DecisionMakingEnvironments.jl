@@ -51,7 +51,7 @@ export sample, sample!, sample_trajectory!, sample_objective, meta_information, 
 
 
 export AbstractBanditProblem, BanditProblem, ContextualBanditProblem
-export AbstractMDP, MDP, POMDP, SequentialProblem
+export AbstractMDP, SequentialProblem
 export BanditExperience, ContextualBanditExperience, Trajectory
 export length, push!, finish!, finished
 
@@ -61,43 +61,3 @@ include("history.jl")
 
 end
 
-
-
-
-
-# What is a decision making problem
-# Optimization problem that looks to find a policy that maximizes return. 
-# Solution space: policy that maps states (possibly a history) to a distribtuion over the action space. No restrictions here. 
-# Objective function - expectation so must be able to sample. 
-# need a way to sample next states
-# need a method to sample rewards 
-# need a way to identify if a squence has terminated and should be reset
-# needs a method of getting the initial state or sampling one
-# needs a discount function. Default to 1 for finite horizon. 
-# state space
-# action space
-
-# meta information: 
-# problem type: finite horizon, POMDP, infinite horizon, Bandit, Contextual Bandit
-# 
-
-# decision making problem: {State space, action space, transition, reward function, initial state distribution, discount function}
-
-# sample(prob, inputs...) get next state reward, termination
-# sample_trajectory(prob, pi) record sequence of state actions rewards, logprobs
-# sample_objective
-# meta_info
-# solve(prob, alg) return policy and other algorithms outputs
-
-# problems I want to solve:
-# MDP discrete / continuous
-# POMDP discrete / continuous
-# 
-
-
-
-# state space, action type, obs type
-# meta-info 
-
-# space description
-# tuple each element contains upper and lower bounds
