@@ -48,6 +48,10 @@ function get_type(::Array{T, 2}) where T
     return Array{T,1}
 end
 
+function get_type(::Array{T, 4}) where T
+    return Array{T,3}
+end
+
 function length(τ::Trajectory)
     return length(τ.rewards)
 end
